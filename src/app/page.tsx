@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import {Card, CardBody, Avatar, Textarea, Button} from "@nextui-org/react";
 
-let socket: any;
+const socket: any = io();
 
 function CardComponent({text}: any) {
   return (
@@ -27,7 +27,6 @@ export default function Home() {
 
   function socketInit() {
     fetch('/api/socket');
-    socket = io();
 
     socket.on('connect', () => {
       console.log('connected with frontend')
