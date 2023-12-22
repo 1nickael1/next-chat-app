@@ -23,7 +23,7 @@ export default function Home() {
 
   useEffect(() => {
     if(socket == null) {
-      const SOCKET_URL = process.env.SOCKET_URL || 'http://localhost:3000';
+      const SOCKET_URL = process.env.SOCKET_URL ? process.env.SOCKET_URL : 'http://localhost:3000';
       socket = io(SOCKET_URL, {
         withCredentials: true
       })
