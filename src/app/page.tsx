@@ -1,10 +1,8 @@
 "use client"
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import io from 'socket.io-client';
 import {Card, CardBody, Avatar, Textarea, Button} from "@nextui-org/react";
-
-const socket: any = io();
 
 function CardComponent({text}: any) {
   return (
@@ -17,31 +15,35 @@ function CardComponent({text}: any) {
   )
 }
 
+let socket: any = null;
+
 export default function Home() {
   const [totalMensagens, setTotalMensagens] = useState<any>([]);
   const [mensagem, setMensagem] = useState('');
 
-  useEffect(() => socketInit(), [])
+  useEffect(() => {
+    if(socket == null) {
+      const SOCKET_URL = process.env.SOCKET_URL || 'http://localhost:9000';
+      socket = io(SOCKET_URL, {
+        withCredentials: true
+      })
 
-  
-
-  function socketInit() {
-    fetch('/api/socket');
-
-    socket.on('connect', () => {
-      console.log('connected with frontend')
-    })
-
-    socket.on('update-chat', (msg: any) => {
-      setTotalMensagens(msg)
-      console.log('chat atualizado no front', msg)
-    })
-  }
+      socket.on('connect', () => {
+        console.log('connected with ID ' + socket.id)
+      })
+      socket.on('first-connection', (chat: any) => {
+        console.log('receive chat from server')
+        setTotalMensagens(chat);
+      })
+    
+      socket.on('update-chat', (newMsg: any) => {
+        setTotalMensagens((prevState: any) => [...prevState, newMsg])
+      });
+    }
+  }, [])
 
   function enviarMensagem() {
-    // setTotalMensagens((prevState: any) => [...prevState, mensagem])
     socket.emit('new-message', mensagem)
-
     setMensagem('');
   }
 
